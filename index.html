@@ -321,17 +321,18 @@
 
       </select>
 
-      <label for="sourceDetail">
-        詳しい内容があれば教えてください
-      </label>
+      <div id="sourceDetailArea" style="display: none;">
+  <label for="sourceDetail">
+    詳しい内容があれば教えてください
+  </label>
 
-      <textarea
-        id="sourceDetail"
-        name="sourceDetail"
-        maxlength="500"
-        placeholder="紹介者名、検索した言葉、見た投稿など"
-      ></textarea>
-
+  <textarea
+    id="sourceDetail"
+    name="sourceDetail"
+    maxlength="500"
+    placeholder="詳しい内容をご入力ください"
+  ></textarea>
+</div>
       <button
         id="submit"
         type="submit"
@@ -373,6 +374,22 @@
     const sourceDetailInput =
       document.getElementById('sourceDetail');
 
+    const sourceDetailArea =
+  document.getElementById('sourceDetailArea');
+
+sourceInput.addEventListener('change', () => {
+  const isOther =
+    sourceInput.value === 'その他';
+
+  sourceDetailArea.style.display =
+    isOther ? 'block' : 'none';
+
+  sourceDetailInput.required = isOther;
+
+  if (!isOther) {
+    sourceDetailInput.value = '';
+  }
+});
 
     let idToken = '';
     let accessToken = '';
