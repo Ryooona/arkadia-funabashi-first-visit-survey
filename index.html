@@ -512,6 +512,10 @@
         <option value="スタッフの紹介">
           スタッフの紹介
         </option>
+        
+        <option value="チラシ・ショップカード">
+  チラシ・ショップカード
+</option>
 
         <option value="通りすがり">
           通りすがり
@@ -524,21 +528,39 @@
 
 
       <div
-        id="sourceDetailArea"
-        style="display: none;"
-      >
-        <label for="sourceDetail">
-          詳しい内容を教えてください
-          <span class="required">必須</span>
-        </label>
+  id="sourceDetailArea"
+  style="display: none;"
+>
+  <label for="sourceDetail" id="sourceDetailLabel">
+    詳細
+    <span class="required">必須</span>
+  </label>
 
-        <textarea
-          id="sourceDetail"
-          name="sourceDetail"
-          maxlength="500"
-          placeholder="詳しい内容をご入力ください"
-        ></textarea>
-      </div>
+  <textarea
+    id="sourceDetail"
+    name="sourceDetail"
+    maxlength="500"
+  ></textarea>
+</div>
+
+<div
+  id="sourceDetailSelectArea"
+  style="display: none;"
+>
+  <label for="sourceDetailSelect" id="sourceDetailSelectLabel">
+    詳細
+    <span class="required">必須</span>
+  </label>
+
+  <select
+    id="sourceDetailSelect"
+    name="sourceDetailSelect"
+  >
+    <option value="">
+      選択してください
+    </option>
+  </select>
+</div>
 
 <p class="notice">
   ※同一LINEアカウントからの回答は1回限りとなります。<br>
@@ -771,25 +793,310 @@ const trialInput =
       document.getElementById('sourceDetailArea');
 
 
-    sourceInput.addEventListener(
-      'change',
-      () => {
+    const sourceDetailSelectArea =
+  document.getElementById('sourceDetailSelectArea');
 
-        const isOther =
-          sourceInput.value === 'その他';
+const sourceDetailSelect =
+  document.getElementById('sourceDetailSelect');
 
-        sourceDetailArea.style.display =
-          isOther ? 'block' : 'none';
+const sourceDetailLabel =
+  document.getElementById('sourceDetailLabel');
 
-        sourceDetailInput.required =
-          isOther;
+const sourceDetailSelectLabel =
+  document.getElementById('sourceDetailSelectLabel');
 
-        if (!isOther) {
-          sourceDetailInput.value = '';
-        }
-      }
-    );
 
+function resetSourceDetail() {
+  sourceDetailArea.style.display =
+    'none';
+
+  sourceDetailSelectArea.style.display =
+    'none';
+
+  sourceDetailInput.required =
+    false;
+
+  sourceDetailSelect.required =
+    false;
+
+  sourceDetailInput.value =
+    '';
+
+  sourceDetailSelect.innerHTML =
+    '<option value="">選択してください</option>';
+}
+
+
+function showSourceText(
+  label,
+  placeholder
+) {
+  sourceDetailArea.style.display =
+    'block';
+
+  sourceDetailSelectArea.style.display =
+    'none';
+
+  sourceDetailLabel.childNodes[0].textContent =
+    label + ' ';
+
+  sourceDetailInput.placeholder =
+    placeholder || '';
+
+  sourceDetailInput.required =
+    true;
+
+  sourceDetailSelect.required =
+    false;
+}
+
+
+function showSourceSelect(
+  label,
+  options
+) {
+  sourceDetailArea.style.display =
+    'none';
+
+  sourceDetailSelectArea.style.display =
+    'block';
+
+  sourceDetailSelectLabel.childNodes[0].textContent =
+    label + ' ';
+
+  sourceDetailSelect.innerHTML =
+    '<option value="">選択してください</option>';
+
+  options.forEach(
+    optionText => {
+      const option =
+        document.createElement('option');
+
+      option.value =
+        optionText;
+
+      option.textContent =
+        optionText;
+
+      sourceDetailSelect.appendChild(
+        option
+      );
+    }
+  );
+
+  sourceDetailInput.required =
+    false;
+
+  sourceDetailSelect.required =
+    true;
+}
+
+
+sourceInput.addEventListener(
+  'change',
+  () => {
+
+    resetSourceDetail();
+
+    switch (
+      sourceInput.value
+    ) {
+
+      case '公式HP':
+      case 'Google Map':
+
+        showSourceText(
+          'どのような検索キーワードで当店を見つけましたか？',
+          '例：船橋 ポーカー'
+        );
+
+        break;
+
+
+      case 'X（旧Twitter）':
+
+        showSourceSelect(
+          'どのように当店のアカウント・投稿を知りましたか？',
+          [
+            '検索して見つけた',
+            'おすすめに表示された',
+            'リポスト・引用で知った',
+            '他のユーザーの投稿で知った',
+            'その他'
+          ]
+        );
+
+        break;
+
+
+      case 'Instagram':
+
+        showSourceSelect(
+          'どのように当店のアカウント・投稿を知りましたか？',
+          [
+            '検索して見つけた',
+            'おすすめ・発見に表示された',
+            '広告が表示された',
+            '他のユーザーの投稿・ストーリーズで知った',
+            'その他'
+          ]
+        );
+
+        break;
+
+
+      case 'TikTok':
+
+        showSourceSelect(
+          'どのように当店のアカウント・投稿を知りましたか？',
+          [
+            '検索して見つけた',
+            'おすすめに表示された',
+            '広告が表示された',
+            '他のユーザーの投稿・シェアで知った',
+            'その他'
+          ]
+        );
+
+        break;
+
+
+      case 'YouTube':
+
+        showSourceSelect(
+          'どのように当店を知りましたか？',
+          [
+            '検索して見つけた',
+            'おすすめに表示された',
+            '関連動画から知った',
+            '他のSNS・サイトから知った',
+            'その他'
+          ]
+        );
+
+        break;
+
+
+      case '友人・知人の紹介':
+
+        showSourceText(
+          'ご紹介者様のお名前またはプレイヤーネームをご入力ください。',
+          '例：〇〇'
+        );
+
+        break;
+
+
+      case 'スタッフの紹介':
+
+        showSourceText(
+          'ご紹介したスタッフの名前をご入力ください。',
+          '例：〇〇'
+        );
+
+        break;
+
+
+      case 'チラシ・ショップカード':
+
+        showSourceSelect(
+          'どこで受け取りましたか？',
+          [
+            '自宅のポスト',
+            'スタッフからの手渡し',
+            '近隣の飲食店・店舗',
+            'イベント会場',
+            'その他'
+          ]
+        );
+
+        break;
+
+
+      case '通りすがり':
+
+        showSourceSelect(
+          '何を見て当店に気づきましたか？',
+          [
+            '入口ののぼり',
+            '入口の看板',
+            '3階の窓ガラス',
+            'その他'
+          ]
+        );
+
+        break;
+
+
+      case 'その他':
+
+        showSourceText(
+          '当店を知ったきっかけを詳しく教えてください。',
+          '詳しい内容をご入力ください'
+        );
+
+        break;
+    }
+  }
+);
+
+   function getSourceDetail() {
+  if (
+    sourceDetailSelectArea.style.display !== 'none'
+  ) {
+    if (
+      sourceDetailSelect.value === 'その他'
+    ) {
+      return (
+        'その他：' +
+        sourceDetailInput.value
+      );
+    }
+
+    return sourceDetailSelect.value;
+  }
+
+  if (
+    sourceDetailArea.style.display !== 'none'
+  ) {
+    return sourceDetailInput.value;
+  }
+
+  return '';
+}
+
+    sourceDetailSelect.addEventListener(
+  'change',
+  () => {
+
+    const isOther =
+      sourceDetailSelect.value === 'その他';
+
+    if (isOther) {
+      sourceDetailArea.style.display =
+        'block';
+
+      sourceDetailLabel.childNodes[0].textContent =
+        '詳しい内容を教えてください ';
+
+      sourceDetailInput.placeholder =
+        '詳しい内容をご入力ください';
+
+      sourceDetailInput.required =
+        true;
+
+    } else {
+      sourceDetailArea.style.display =
+        'none';
+
+      sourceDetailInput.required =
+        false;
+
+      sourceDetailInput.value =
+        '';
+    }
+  }
+);
 
     let idToken = '';
     let accessToken = '';
@@ -911,10 +1218,13 @@ confirmItems.push([
   sourceInput.value
 ]);
 
-if (sourceInput.value === 'その他') {
+const sourceDetailValue =
+  getSourceDetail();
+
+if (sourceDetailValue) {
   confirmItems.push([
-    '詳しい内容',
-    sourceDetailInput.value
+    '詳細',
+    sourceDetailValue
   ]);
 }
 
@@ -1041,7 +1351,7 @@ confirmSubmit.addEventListener(
                   sourceInput.value,
 
                 sourceDetail:
-                  sourceDetailInput.value,
+  getSourceDetail(),
 
                 idToken:
                   idToken,
