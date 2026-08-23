@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+  >
+
+  <title>Arkadia 初回来店アンケート</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    :root {
+      --green: #06c755;
+      --green-disabled: #8bddad;
+      --ink: #202124;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --background: #f6f7f8;
+      --error: #dc2626;
+      --success: #166534;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--background);
+      color: var(--ink);
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Helvetica Neue",
+        "Noto Sans JP",
+        sans-serif;
+
+      -webkit-text-size-adjust: 100%;
+    }
+
+    main {
+      width: 100%;
+      max-width: 560px;
+      min-height: 100vh;
+
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+
+      background: #ffffff;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+
+      font-size: 24px;
+      line-height: 1.4;
+    }
+
+    .lead {
+      margin: 0 0 28px;
+
+      color: var(--muted);
+
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    label {
+      display: block;
+
+      margin: 20px 0 8px;
+
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .required {
+      margin-left: 6px;
+
+      color: var(--error);
+
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      display: block;
+
+      width: 100%;
+      max-width: 100%;
+
+      padding: 13px;
+
+      border: 1px solid var(--line);
+      border-radius: 10px;
+
+      background: #ffffff;
+      color: var(--ink);
+
+      font-family: inherit;
+      font-size: 16px;
+      line-height: 1.4;
+
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--green);
+
+      box-shadow:
+        0 0 0 2px
+        rgba(6, 199, 85, 0.12);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    button {
+      display: block;
+
+      width: 100%;
+      min-height: 54px;
+
+      margin-top: 28px;
+      padding: 14px 16px;
+
+      border: 0;
+      border-radius: 12px;
+
+      background: var(--green);
+      color: #ffffff;
+
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: var(--green-disabled);
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    #message {
+      display: none;
+
+      margin-top: 18px;
+      padding: 14px;
+
+      border-radius: 10px;
+
+      line-height: 1.7;
+
+      overflow-wrap: anywhere;
+    }
+
+    #message.error {
+      display: block;
+
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    #message.success {
+      display: block;
+
+      background: #ecfdf3;
+      color: var(--success);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        background: #ffffff;
+      }
+
+      main {
+        max-width: none;
+        min-height: 100dvh;
+
+        padding:
+          20px
+          calc(16px + env(safe-area-inset-right))
+          calc(32px + env(safe-area-inset-bottom))
+          calc(16px + env(safe-area-inset-left));
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .lead {
+        margin-bottom: 22px;
+      }
+
+      label {
+        margin-top: 18px;
+      }
+
+      input,
+      select,
+      textarea {
+        min-height: 52px;
+        padding: 14px;
+        font-size: 16px;
+      }
+
+      textarea {
+        min-height: 110px;
+      }
+
+      button {
+        margin-top: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main>
+
+    <h1>
+      初回来店アンケート
+    </h1>
+
+    <p class="lead">
+      ご回答後、初回来店特典のクーポンをLINEでお送りします。
+    </p>
+
+    <form id="survey">
+
+      <label for="pppId">
+        PPP ID
+        <span class="required">必須</span>
+      </label>
+
+      <input
+        id="pppId"
+        name="pppId"
+        type="text"
+        autocomplete="off"
+        maxlength="100"
+        required
+        placeholder="PPPに表示されているID"
+      >
+
+      <label for="source">
+        当店を何で知りましたか？
+        <span class="required">必須</span>
+      </label>
+
+      <select
+        id="source"
+        name="source"
+        required
+      >
+
+        <option value="">
+          選択してください
+        </option>
+
+        <option value="公式HP">
+          公式HP
+        </option>
+
+        <option value="Google Map">
+          Google Map
+        </option>
+
+        <option value="X（旧Twitter）">
+          X（旧Twitter）
+        </option>
+
+        <option value="Instagram">
+          Instagram
+        </option>
+
+        <option value="TikTok">
+          TikTok
+        </option>
+
+        <option value="YouTube">
+          YouTube
+        </option>
+
+        <option value="友人・知人の紹介">
+          友人・知人の紹介
+        </option>
+
+        <option value="スタッフの紹介">
+          スタッフの紹介
+        </option>
+
+        <option value="通りすがり">
+          通りすがり
+        </option>
+
+        <option value="その他">
+          その他
+        </option>
+
+      </select>
+
+      <label for="sourceDetail">
+        詳しい内容があれば教えてください
+      </label>
+
+      <textarea
+        id="sourceDetail"
+        name="sourceDetail"
+        maxlength="500"
+        placeholder="紹介者名、検索した言葉、見た投稿など"
+      ></textarea>
+
+      <button
+        id="submit"
+        type="submit"
+        disabled
+      >
+        LINEログインを確認中…
+      </button>
+
+    </form>
+
+    <div id="message"></div>
+
+  </main>
+
+  <script>
+
+    const LIFF_ID =
+      '2011208625-nZvVWFJC';
+
+    const GAS_API_URL =
+      'https://script.google.com/macros/s/AKfycbwbjXWpAC1V5cNl612QETyhAOLcRKG1auXa92thpTsdDX4utnvyM3Uu48ltkNT-0uCffg/exec';
+
+
+    const form =
+      document.getElementById('survey');
+
+    const button =
+      document.getElementById('submit');
+
+    const message =
+      document.getElementById('message');
+
+    const pppIdInput =
+      document.getElementById('pppId');
+
+    const sourceInput =
+      document.getElementById('source');
+
+    const sourceDetailInput =
+      document.getElementById('sourceDetail');
+
+
+    let idToken = '';
+    let accessToken = '';
+
+
+    function showMessage(
+      text,
+      type = 'error'
+    ) {
+      message.textContent = text;
+      message.className = type;
+      message.style.display = 'block';
+    }
+
+
+    function hideMessage() {
+      message.textContent = '';
+      message.className = '';
+      message.style.display = 'none';
+    }
+
+
+    async function start() {
+      try {
+
+        if (
+          typeof liff === 'undefined'
+        ) {
+          throw new Error(
+            'LIFF SDKを読み込めませんでした。'
+          );
+        }
+
+        await liff.init({
+          liffId: LIFF_ID,
+          withLoginOnExternalBrowser: true
+        });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        idToken =
+          liff.getIDToken() || '';
+
+        accessToken =
+          liff.getAccessToken() || '';
+
+        if (
+          !idToken &&
+          !accessToken
+        ) {
+          throw new Error(
+            'LINEの本人確認情報を取得できませんでした。'
+          );
+        }
+
+        button.disabled = false;
+
+        button.textContent =
+          '回答してクーポンを受け取る';
+
+        hideMessage();
+
+      } catch (error) {
+
+        console.error(error);
+
+        button.disabled = true;
+
+        button.textContent =
+          '読み込みできません';
+
+        showMessage(
+          error &&
+          error.message
+            ? error.message
+            : 'LINEからもう一度開いてください。'
+        );
+      }
+    }
+
+
+    form.addEventListener(
+      'submit',
+      async event => {
+
+        event.preventDefault();
+
+        if (!form.reportValidity()) {
+          return;
+        }
+
+        if (
+          !idToken &&
+          !accessToken
+        ) {
+          showMessage(
+            'LINEの本人確認情報を取得できませんでした。'
+          );
+
+          return;
+        }
+
+        button.disabled = true;
+
+        button.textContent =
+          '送信中…';
+
+        hideMessage();
+
+        try {
+
+          const response =
+            await fetch(
+              GAS_API_URL,
+              {
+                method: 'POST',
+
+                headers: {
+                  'Content-Type':
+                    'text/plain;charset=utf-8'
+                },
+
+                body:
+                  JSON.stringify({
+                    pppId:
+                      pppIdInput.value,
+
+                    source:
+                      sourceInput.value,
+
+                    sourceDetail:
+                      sourceDetailInput.value,
+
+                    idToken:
+                      idToken,
+
+                    accessToken:
+                      accessToken
+                  })
+              }
+            );
+
+          const text =
+            await response.text();
+
+          let result;
+
+          try {
+            result =
+              JSON.parse(text);
+          } catch (error) {
+            throw new Error(
+              'サーバーから正しい応答を取得できませんでした。'
+            );
+          }
+
+          if (
+            result &&
+            result.ok
+          ) {
+
+            form.style.display =
+              'none';
+
+            showMessage(
+              'ご回答ありがとうございました。' +
+              'LINEに届いたクーポンをスタッフへご提示ください。',
+              'success'
+            );
+
+            return;
+          }
+
+          showMessage(
+            result &&
+            result.message
+              ? result.message
+              : '回答を送信できませんでした。'
+          );
+
+          button.disabled =
+            false;
+
+          button.textContent =
+            '回答してクーポンを受け取る';
+
+        } catch (error) {
+
+          console.error(error);
+
+          showMessage(
+            error &&
+            error.message
+              ? error.message
+              : '回答を送信できませんでした。'
+          );
+
+          button.disabled =
+            false;
+
+          button.textContent =
+            '回答してクーポンを受け取る';
+        }
+      }
+    );
+
+
+    start();
+
+  </script>
+
+</body>
+</html>
