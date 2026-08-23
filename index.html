@@ -643,6 +643,13 @@ const pppNicknameInput =
 
     const pppIdInput =
       document.getElementById('pppId');
+    pppIdInput.addEventListener(
+  'input',
+  () => {
+    pppIdInput.value =
+      pppIdInput.value.toLowerCase();
+  }
+);
 
     const ageInput =
       document.getElementById('age');
