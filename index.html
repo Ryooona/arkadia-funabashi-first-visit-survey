@@ -39,14 +39,12 @@
     body {
       background: var(--background);
       color: var(--ink);
-
       font-family:
         -apple-system,
         BlinkMacSystemFont,
         "Helvetica Neue",
         "Noto Sans JP",
         sans-serif;
-
       -webkit-text-size-adjust: 100%;
     }
 
@@ -54,43 +52,34 @@
       width: 100%;
       max-width: 560px;
       min-height: 100vh;
-
       margin: 0 auto;
       padding: 28px 18px 48px;
-
       background: #ffffff;
     }
 
     h1 {
       margin: 0 0 8px;
-
       font-size: 24px;
       line-height: 1.4;
     }
 
     .lead {
       margin: 0 0 28px;
-
       color: var(--muted);
-
       font-size: 14px;
       line-height: 1.7;
     }
 
     label {
       display: block;
-
       margin: 20px 0 8px;
-
       font-weight: 700;
       line-height: 1.5;
     }
 
     .required {
       margin-left: 6px;
-
       color: var(--error);
-
       font-size: 12px;
       font-weight: 700;
     }
@@ -99,22 +88,16 @@
     select,
     textarea {
       display: block;
-
       width: 100%;
       max-width: 100%;
-
       padding: 13px;
-
       border: 1px solid var(--line);
       border-radius: 10px;
-
       background: #ffffff;
       color: var(--ink);
-
       font-family: inherit;
       font-size: 16px;
       line-height: 1.4;
-
       outline: none;
     }
 
@@ -122,7 +105,6 @@
     select:focus,
     textarea:focus {
       border-color: var(--green);
-
       box-shadow:
         0 0 0 2px
         rgba(6, 199, 85, 0.12);
@@ -135,23 +117,17 @@
 
     button {
       display: block;
-
       width: 100%;
       min-height: 54px;
-
       margin-top: 28px;
       padding: 14px 16px;
-
       border: 0;
       border-radius: 12px;
-
       background: var(--green);
       color: #ffffff;
-
       font-family: inherit;
       font-size: 16px;
       font-weight: 700;
-
       cursor: pointer;
     }
 
@@ -163,27 +139,21 @@
 
     #message {
       display: none;
-
       margin-top: 18px;
       padding: 14px;
-
       border-radius: 10px;
-
       line-height: 1.7;
-
       overflow-wrap: anywhere;
     }
 
     #message.error {
       display: block;
-
       background: #fef2f2;
       color: #991b1b;
     }
 
     #message.success {
       display: block;
-
       background: #ecfdf3;
       color: var(--success);
     }
@@ -196,7 +166,6 @@
       main {
         max-width: none;
         min-height: 100dvh;
-
         padding:
           20px
           calc(16px + env(safe-area-inset-right))
@@ -249,6 +218,22 @@
 
     <form id="survey">
 
+      <label for="pppNickname">
+        PPPニックネーム
+        <span class="required">必須</span>
+      </label>
+
+      <input
+        id="pppNickname"
+        name="pppNickname"
+        type="text"
+        autocomplete="off"
+        maxlength="100"
+        required
+        placeholder="PPPに表示されているニックネーム"
+      >
+
+
       <label for="pppId">
         PPP ID
         <span class="required">必須</span>
@@ -264,6 +249,119 @@
         placeholder="PPPに表示されているID"
       >
 
+
+      <label for="age">
+        年齢
+        <span class="required">必須</span>
+      </label>
+
+      <select
+        id="age"
+        name="age"
+        required
+      >
+        <option value="">
+          選択してください
+        </option>
+
+        <option value="〜19歳">
+          〜19歳
+        </option>
+
+        <option value="20〜29歳">
+          20〜29歳
+        </option>
+
+        <option value="30〜39歳">
+          30〜39歳
+        </option>
+
+        <option value="40〜49歳">
+          40〜49歳
+        </option>
+
+        <option value="50〜59歳">
+          50〜59歳
+        </option>
+
+        <option value="60〜69歳">
+          60〜69歳
+        </option>
+
+        <option value="70歳〜">
+          70歳〜
+        </option>
+      </select>
+
+
+      <label for="gender">
+        性別
+        <span class="required">必須</span>
+      </label>
+
+      <select
+        id="gender"
+        name="gender"
+        required
+      >
+        <option value="">
+          選択してください
+        </option>
+
+        <option value="男性">
+          男性
+        </option>
+
+        <option value="女性">
+          女性
+        </option>
+
+        <option value="その他">
+          その他
+        </option>
+      </select>
+
+
+      <label for="pokerExperience">
+        ポーカーのご経験
+        <span class="required">必須</span>
+      </label>
+
+      <select
+        id="pokerExperience"
+        name="pokerExperience"
+        required
+      >
+        <option value="">
+          選択してください
+        </option>
+
+        <option value="今日が初めて">
+          今日が初めて
+        </option>
+
+        <option value="3ヶ月未満">
+          3ヶ月未満
+        </option>
+
+        <option value="3ヶ月〜6ヶ月">
+          3ヶ月〜6ヶ月
+        </option>
+
+        <option value="6ヶ月〜1年">
+          6ヶ月〜1年
+        </option>
+
+        <option value="1年〜3年">
+          1年〜3年
+        </option>
+
+        <option value="3年以上">
+          3年以上
+        </option>
+      </select>
+
+
       <label for="source">
         当店を何で知りましたか？
         <span class="required">必須</span>
@@ -274,7 +372,6 @@
         name="source"
         required
       >
-
         <option value="">
           選択してください
         </option>
@@ -318,21 +415,27 @@
         <option value="その他">
           その他
         </option>
-
       </select>
 
-      <div id="sourceDetailArea" style="display: none;">
-  <label for="sourceDetail">
-    詳しい内容があれば教えてください
-  </label>
 
-  <textarea
-    id="sourceDetail"
-    name="sourceDetail"
-    maxlength="500"
-    placeholder="詳しい内容をご入力ください"
-  ></textarea>
-</div>
+      <div
+        id="sourceDetailArea"
+        style="display: none;"
+      >
+        <label for="sourceDetail">
+          詳しい内容を教えてください
+          <span class="required">必須</span>
+        </label>
+
+        <textarea
+          id="sourceDetail"
+          name="sourceDetail"
+          maxlength="500"
+          placeholder="詳しい内容をご入力ください"
+        ></textarea>
+      </div>
+
+
       <button
         id="submit"
         type="submit"
@@ -365,8 +468,21 @@
     const message =
       document.getElementById('message');
 
+
+    const pppNicknameInput =
+      document.getElementById('pppNickname');
+
     const pppIdInput =
       document.getElementById('pppId');
+
+    const ageInput =
+      document.getElementById('age');
+
+    const genderInput =
+      document.getElementById('gender');
+
+    const pokerExperienceInput =
+      document.getElementById('pokerExperience');
 
     const sourceInput =
       document.getElementById('source');
@@ -375,21 +491,28 @@
       document.getElementById('sourceDetail');
 
     const sourceDetailArea =
-  document.getElementById('sourceDetailArea');
+      document.getElementById('sourceDetailArea');
 
-sourceInput.addEventListener('change', () => {
-  const isOther =
-    sourceInput.value === 'その他';
 
-  sourceDetailArea.style.display =
-    isOther ? 'block' : 'none';
+    sourceInput.addEventListener(
+      'change',
+      () => {
 
-  sourceDetailInput.required = isOther;
+        const isOther =
+          sourceInput.value === 'その他';
 
-  if (!isOther) {
-    sourceDetailInput.value = '';
-  }
-});
+        sourceDetailArea.style.display =
+          isOther ? 'block' : 'none';
+
+        sourceDetailInput.required =
+          isOther;
+
+        if (!isOther) {
+          sourceDetailInput.value = '';
+        }
+      }
+    );
+
 
     let idToken = '';
     let accessToken = '';
@@ -517,8 +640,21 @@ sourceInput.addEventListener('change', () => {
 
                 body:
                   JSON.stringify({
+
+                    pppNickname:
+                      pppNicknameInput.value,
+
                     pppId:
                       pppIdInput.value,
+
+                    age:
+                      ageInput.value,
+
+                    gender:
+                      genderInput.value,
+
+                    pokerExperience:
+                      pokerExperienceInput.value,
 
                     source:
                       sourceInput.value,
