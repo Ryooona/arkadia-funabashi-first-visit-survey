@@ -198,10 +198,21 @@
       }
 
       button {
-        margin-top: 24px;
-      }
-    }
-  </style>
+  margin-top: 24px;
+}
+}
+
+.birthday-fields {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px;
+}
+
+.birthday-fields select {
+  width: 100%;
+}
+
+</style>
 </head>
 
 <body>
@@ -324,17 +335,56 @@
         </option>
       </select>
 
-<label for="birthday">
+<label>
   誕生日
   <span class="required">必須</span>
 </label>
 
-<input
-  id="birthday"
-  name="birthday"
-  type="date"
-  required
->
+<div class="birthday-fields">
+
+  <select
+    id="birthYear"
+    required
+  >
+    <option value="">
+      年
+    </option>
+  </select>
+
+  <select
+    id="birthMonth"
+    required
+  >
+    <option value="">
+      月
+    </option>
+
+    <option value="1">1月</option>
+    <option value="2">2月</option>
+    <option value="3">3月</option>
+    <option value="4">4月</option>
+    <option value="5">5月</option>
+    <option value="6">6月</option>
+    <option value="7">7月</option>
+    <option value="8">8月</option>
+    <option value="9">9月</option>
+    <option value="10">10月</option>
+    <option value="11">11月</option>
+    <option value="12">12月</option>
+
+  </select>
+
+  <select
+    id="birthDay"
+    required
+    disabled
+  >
+    <option value="">
+      日
+    </option>
+  </select>
+
+</div>
       
       <label for="pokerExperience">
         ポーカーのご経験
@@ -537,8 +587,107 @@ const pppNicknameInput =
     const genderInput =
       document.getElementById('gender');
 
-const birthdayInput =
-  document.getElementById('birthday');
+const birthYearInput =
+  document.getElementById('birthYear');
+
+const birthMonthInput =
+  document.getElementById('birthMonth');
+
+const birthDayInput =
+  document.getElementById('birthDay');
+
+    const currentYear =
+  new Date().getFullYear();
+
+for (
+  let year = currentYear;
+  year >= 1900;
+  year--
+) {
+  const option =
+    document.createElement('option');
+
+  option.value = year;
+  option.textContent = year + '年';
+
+  birthYearInput.appendChild(option);
+}
+
+
+function updateBirthDays() {
+  const year =
+    Number(birthYearInput.value);
+
+  const month =
+    Number(birthMonthInput.value);
+
+  birthDayInput.innerHTML =
+    '<option value="">日</option>';
+
+  if (!year || !month) {
+    birthDayInput.disabled = true;
+    return;
+  }
+
+  const daysInMonth =
+    new Date(year, month, 0).getDate();
+
+  for (
+    let day = 1;
+    day <= daysInMonth;
+    day++
+  ) {
+    const option =
+      document.createElement('option');
+
+    option.value = day;
+    option.textContent = day + '日';
+
+    birthDayInput.appendChild(option);
+  }
+
+  birthDayInput.disabled = false;
+}
+
+
+birthYearInput.addEventListener(
+  'change',
+  updateBirthDays
+);
+
+birthMonthInput.addEventListener(
+  'change',
+  updateBirthDays
+);
+
+
+function getBirthday() {
+  if (
+    !birthYearInput.value ||
+    !birthMonthInput.value ||
+    !birthDayInput.value
+  ) {
+    return '';
+  }
+
+  const month =
+    String(
+      birthMonthInput.value
+    ).padStart(2, '0');
+
+  const day =
+    String(
+      birthDayInput.value
+    ).padStart(2, '0');
+
+  return (
+    birthYearInput.value +
+    '-' +
+    month +
+    '-' +
+    day
+  );
+}
     
     const pokerExperienceInput =
       document.getElementById('pokerExperience');
@@ -673,7 +822,7 @@ const confirmItems = [
   ['PPP ID', pppIdInput.value],
   ['年齢', ageInput.value],
   ['性別', genderInput.value],
-  ['誕生日', birthdayInput.value],
+  ['誕生日', getBirthday()],
   ['ポーカーのご経験', pokerExperienceInput.value],
   ['当店を知ったきっかけ', sourceInput.value]
 ];
@@ -796,7 +945,7 @@ confirmSubmit.addEventListener(
                   genderInput.value,
 
                 birthday:
-  birthdayInput.value,
+  getBirthday(),
 
                 pokerExperience:
                   pokerExperienceInput.value,
