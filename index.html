@@ -425,6 +425,32 @@
         </option>
       </select>
 
+      <div
+  id="trialArea"
+  style="display: none;"
+>
+  <label for="trial">
+    ポーカー体験会を受講しますか？
+    <span class="required">必須</span>
+  </label>
+
+  <select
+    id="trial"
+    name="trial"
+  >
+    <option value="">
+      選択してください
+    </option>
+
+    <option value="yes">
+      はい
+    </option>
+
+    <option value="no">
+      いいえ
+    </option>
+  </select>
+</div>
 
       <label for="source">
         当店を何で知りましたか？
@@ -692,6 +718,34 @@ function getBirthday() {
     const pokerExperienceInput =
       document.getElementById('pokerExperience');
 
+    const trialArea =
+  document.getElementById('trialArea');
+
+const trialInput =
+  document.getElementById('trial');
+
+    pokerExperienceInput.addEventListener(
+  'change',
+  () => {
+
+    const isBeginner =
+      pokerExperienceInput.value ===
+      '今日が初めて';
+
+    trialArea.style.display =
+      isBeginner
+        ? 'block'
+        : 'none';
+
+    trialInput.required =
+      isBeginner;
+
+    if (!isBeginner) {
+      trialInput.value = '';
+    }
+  }
+);
+
     const sourceInput =
       document.getElementById('source');
 
@@ -823,9 +877,24 @@ const confirmItems = [
   ['年齢', ageInput.value],
   ['性別', genderInput.value],
   ['誕生日', getBirthday()],
-  ['ポーカーのご経験', pokerExperienceInput.value],
-  ['当店を知ったきっかけ', sourceInput.value]
+  ['ポーカーのご経験', pokerExperienceInput.value]
 ];
+
+if (
+  pokerExperienceInput.value === '今日が初めて'
+) {
+  confirmItems.push([
+    'ポーカー体験会を受講しますか？',
+    trialInput.value === 'yes'
+      ? 'はい'
+      : 'いいえ'
+  ]);
+}
+
+confirmItems.push([
+  '当店を知ったきっかけ',
+  sourceInput.value
+]);
 
 if (sourceInput.value === 'その他') {
   confirmItems.push([
@@ -949,6 +1018,9 @@ confirmSubmit.addEventListener(
 
                 pokerExperience:
                   pokerExperienceInput.value,
+
+                trial:
+                  trialInput.value,
 
                 source:
                   sourceInput.value,
