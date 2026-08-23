@@ -240,14 +240,17 @@
       </label>
 
       <input
-        id="pppId"
-        name="pppId"
-        type="text"
-        autocomplete="off"
-        maxlength="100"
-        required
-        placeholder="PPPのID（半角英数字5桁）"
-      >
+  id="pppId"
+  name="pppId"
+  type="text"
+  autocomplete="off"
+  minlength="5"
+  maxlength="5"
+  pattern="[A-Za-z0-9]{5}"
+  required
+  placeholder="PPPのID（半角英数字5桁）"
+  title="半角英数字5桁で入力してください"
+>
 
 
       <label for="age">
@@ -649,19 +652,52 @@ form.addEventListener(
       return;
     }
 
-    confirmContent.innerHTML = `
-      <p><strong>PPPニックネーム</strong><br>${pppNicknameInput.value}</p>
-      <p><strong>PPP ID</strong><br>${pppIdInput.value}</p>
-      <p><strong>年齢</strong><br>${ageInput.value}</p>
-      <p><strong>性別</strong><br>${genderInput.value}</p>
-      <p><strong>ポーカーのご経験</strong><br>${pokerExperienceInput.value}</p>
-      <p><strong>当店を知ったきっかけ</strong><br>${sourceInput.value}</p>
-      ${
-        sourceInput.value === 'その他'
-          ? `<p><strong>詳しい内容</strong><br>${sourceDetailInput.value}</p>`
-          : ''
-      }
-    `;
+    confirmContent.innerHTML = '';
+
+const confirmItems = [
+  ['PPPニックネーム', pppNicknameInput.value],
+  ['PPP ID', pppIdInput.value],
+  ['年齢', ageInput.value],
+  ['性別', genderInput.value],
+  ['ポーカーのご経験', pokerExperienceInput.value],
+  ['当店を知ったきっかけ', sourceInput.value]
+];
+
+if (sourceInput.value === 'その他') {
+  confirmItems.push([
+    '詳しい内容',
+    sourceDetailInput.value
+  ]);
+}
+
+confirmItems.forEach(([label, value]) => {
+  const p =
+    document.createElement('p');
+
+  const strong =
+    document.createElement('strong');
+
+  strong.textContent =
+    label;
+
+  p.appendChild(
+    strong
+  );
+
+  p.appendChild(
+    document.createElement('br')
+  );
+
+  p.appendChild(
+    document.createTextNode(
+      value
+    )
+  );
+
+  confirmContent.appendChild(
+    p
+  );
+});
 
     form.style.display =
       'none';
