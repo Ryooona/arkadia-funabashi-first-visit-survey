@@ -324,7 +324,18 @@
         </option>
       </select>
 
+<label for="birthday">
+  誕生日
+  <span class="required">必須</span>
+</label>
 
+<input
+  id="birthday"
+  name="birthday"
+  type="date"
+  required
+>
+      
       <label for="pokerExperience">
         ポーカーのご経験
         <span class="required">必須</span>
@@ -526,6 +537,9 @@ const pppNicknameInput =
     const genderInput =
       document.getElementById('gender');
 
+const birthdayInput =
+  document.getElementById('birthday');
+    
     const pokerExperienceInput =
       document.getElementById('pokerExperience');
 
@@ -659,6 +673,7 @@ const confirmItems = [
   ['PPP ID', pppIdInput.value],
   ['年齢', ageInput.value],
   ['性別', genderInput.value],
+  ['誕生日', birthdayInput.value],
   ['ポーカーのご経験', pokerExperienceInput.value],
   ['当店を知ったきっかけ', sourceInput.value]
 ];
@@ -779,6 +794,9 @@ confirmSubmit.addEventListener(
 
                 gender:
                   genderInput.value,
+
+                birthday:
+  birthdayInput.value,
 
                 pokerExperience:
                   pokerExperienceInput.value,
