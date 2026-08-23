@@ -230,7 +230,7 @@
         autocomplete="off"
         maxlength="100"
         required
-        placeholder="PPPに表示されているニックネーム"
+        placeholder="PPPで設定したニックネーム"
       >
 
 
@@ -246,7 +246,7 @@
         autocomplete="off"
         maxlength="100"
         required
-        placeholder="PPPに表示されているID"
+        placeholder="PPPのID（半角英数字5桁）"
       >
 
 
@@ -435,7 +435,11 @@
         ></textarea>
       </div>
 
-
+<p class="notice">
+  ※同一LINEアカウントからの回答は1回限りとなります。<br>
+  送信後は回答内容を変更できませんので、内容をご確認のうえ送信してください。
+</p>
+      
       <button
         id="submit"
         type="submit"
@@ -446,6 +450,32 @@
 
     </form>
 
+<div id="confirmArea" style="display: none;">
+
+  <h2>回答内容の確認</h2>
+
+  <div id="confirmContent"></div>
+
+  <p class="notice">
+    ※送信後は回答内容を変更できません。
+  </p>
+
+  <button
+    id="confirmSubmit"
+    type="button"
+  >
+    この内容で回答する
+  </button>
+
+  <button
+    id="backButton"
+    type="button"
+  >
+    修正する
+  </button>
+
+</div>
+    
     <div id="message"></div>
 
   </main>
@@ -465,12 +495,24 @@
     const button =
       document.getElementById('submit');
 
-    const message =
-      document.getElementById('message');
+   const message =
+  document.getElementById('message');
+
+const confirmArea =
+  document.getElementById('confirmArea');
+
+const confirmContent =
+  document.getElementById('confirmContent');
+
+const confirmSubmit =
+  document.getElementById('confirmSubmit');
+
+const backButton =
+  document.getElementById('backButton');
 
 
-    const pppNicknameInput =
-      document.getElementById('pppNickname');
+const pppNicknameInput =
+  document.getElementById('pppNickname');
 
     const pppIdInput =
       document.getElementById('pppId');
@@ -597,145 +639,200 @@
     }
 
 
-    form.addEventListener(
-      'submit',
-      async event => {
+form.addEventListener(
+  'submit',
+  event => {
 
-        event.preventDefault();
+    event.preventDefault();
 
-        if (!form.reportValidity()) {
-          return;
-        }
+    if (!form.reportValidity()) {
+      return;
+    }
 
-        if (
-          !idToken &&
-          !accessToken
-        ) {
-          showMessage(
-            'LINEの本人確認情報を取得できませんでした。'
-          );
-
-          return;
-        }
-
-        button.disabled = true;
-
-        button.textContent =
-          '送信中…';
-
-        hideMessage();
-
-        try {
-
-          const response =
-            await fetch(
-              GAS_API_URL,
-              {
-                method: 'POST',
-
-                headers: {
-                  'Content-Type':
-                    'text/plain;charset=utf-8'
-                },
-
-                body:
-                  JSON.stringify({
-
-                    pppNickname:
-                      pppNicknameInput.value,
-
-                    pppId:
-                      pppIdInput.value,
-
-                    age:
-                      ageInput.value,
-
-                    gender:
-                      genderInput.value,
-
-                    pokerExperience:
-                      pokerExperienceInput.value,
-
-                    source:
-                      sourceInput.value,
-
-                    sourceDetail:
-                      sourceDetailInput.value,
-
-                    idToken:
-                      idToken,
-
-                    accessToken:
-                      accessToken
-                  })
-              }
-            );
-
-          const text =
-            await response.text();
-
-          let result;
-
-          try {
-            result =
-              JSON.parse(text);
-          } catch (error) {
-            throw new Error(
-              'サーバーから正しい応答を取得できませんでした。'
-            );
-          }
-
-          if (
-            result &&
-            result.ok
-          ) {
-
-            form.style.display =
-              'none';
-
-            showMessage(
-              'ご回答ありがとうございました。' +
-              'LINEに届いたクーポンをスタッフへご提示ください。',
-              'success'
-            );
-
-            return;
-          }
-
-          showMessage(
-            result &&
-            result.message
-              ? result.message
-              : '回答を送信できませんでした。'
-          );
-
-          button.disabled =
-            false;
-
-          button.textContent =
-            '回答してクーポンを受け取る';
-
-        } catch (error) {
-
-          console.error(error);
-
-          showMessage(
-            error &&
-            error.message
-              ? error.message
-              : '回答を送信できませんでした。'
-          );
-
-          button.disabled =
-            false;
-
-          button.textContent =
-            '回答してクーポンを受け取る';
-        }
+    confirmContent.innerHTML = `
+      <p><strong>PPPニックネーム</strong><br>${pppNicknameInput.value}</p>
+      <p><strong>PPP ID</strong><br>${pppIdInput.value}</p>
+      <p><strong>年齢</strong><br>${ageInput.value}</p>
+      <p><strong>性別</strong><br>${genderInput.value}</p>
+      <p><strong>ポーカーのご経験</strong><br>${pokerExperienceInput.value}</p>
+      <p><strong>当店を知ったきっかけ</strong><br>${sourceInput.value}</p>
+      ${
+        sourceInput.value === 'その他'
+          ? `<p><strong>詳しい内容</strong><br>${sourceDetailInput.value}</p>`
+          : ''
       }
-    );
+    `;
 
+    form.style.display =
+      'none';
 
+    confirmArea.style.display =
+      'block';
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+);
+
+    backButton.addEventListener(
+  'click',
+  () => {
+
+    confirmArea.style.display =
+      'none';
+
+    form.style.display =
+      'block';
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+);
+
+confirmSubmit.addEventListener(
+  'click',
+  async () => {
+
+    if (
+      !idToken &&
+      !accessToken
+    ) {
+      showMessage(
+        'LINEの本人確認情報を取得できませんでした。'
+      );
+
+      return;
+    }
+
+    confirmSubmit.disabled = true;
+    backButton.disabled = true;
+
+    confirmSubmit.textContent =
+      '送信中…';
+
+    hideMessage();
+
+    try {
+
+      const response =
+        await fetch(
+          GAS_API_URL,
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type':
+                'text/plain;charset=utf-8'
+            },
+
+            body:
+              JSON.stringify({
+
+                pppNickname:
+                  pppNicknameInput.value,
+
+                pppId:
+                  pppIdInput.value,
+
+                age:
+                  ageInput.value,
+
+                gender:
+                  genderInput.value,
+
+                pokerExperience:
+                  pokerExperienceInput.value,
+
+                source:
+                  sourceInput.value,
+
+                sourceDetail:
+                  sourceDetailInput.value,
+
+                idToken:
+                  idToken,
+
+                accessToken:
+                  accessToken
+              })
+          }
+        );
+
+      const text =
+        await response.text();
+
+      let result;
+
+      try {
+        result =
+          JSON.parse(text);
+
+      } catch (error) {
+        throw new Error(
+          'サーバーから正しい応答を取得できませんでした。'
+        );
+      }
+
+      if (
+        result &&
+        result.ok
+      ) {
+
+        confirmArea.style.display =
+          'none';
+
+        showMessage(
+          'ご回答ありがとうございました。' +
+          'LINEに届いたクーポンをスタッフへご提示ください。',
+          'success'
+        );
+
+        return;
+      }
+
+      showMessage(
+        result &&
+        result.message
+          ? result.message
+          : '回答を送信できませんでした。'
+      );
+
+      confirmSubmit.disabled =
+        false;
+
+      backButton.disabled =
+        false;
+
+      confirmSubmit.textContent =
+        'この内容で回答する';
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        error &&
+        error.message
+          ? error.message
+          : '回答を送信できませんでした。'
+      );
+
+      confirmSubmit.disabled =
+        false;
+
+      backButton.disabled =
+        false;
+
+      confirmSubmit.textContent =
+        'この内容で回答する';
+    }
+  }
+);
+    
     start();
 
   </script>
