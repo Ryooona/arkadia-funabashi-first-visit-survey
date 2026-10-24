@@ -594,7 +594,8 @@
   <div id="confirmContent"></div>
 
   <p class="notice">
-    ※送信後は回答内容を変更できません。
+    ※送信後は回答内容を変更できません。<br>
+    回答後、運営への通知として、お客様のLINEから「初回来場アンケート回答」を送信します。
   </p>
 
   <button
@@ -614,6 +615,10 @@
 </div>
     
     <div id="message"></div>
+    <div id="notificationArea" style="display: none;" role="status">
+      <p id="notificationStatus"></p>
+      <button id="retryNotification" type="button" style="display: none;">通知メッセージを再送する</button>
+    </div>
 
   </main>
 
@@ -1314,6 +1319,40 @@ confirmItems.forEach(([label, value]) => {
   }
 );
 
+// 回答保存と通知送信を分け、通知の再試行で回答を二重登録しない。
+const notificationText = '初回来場アンケート回答';
+let notificationSent = false;
+let notificationSending = false;
+
+async function sendSurveyNotification() {
+  if (notificationSent || notificationSending) return;
+  const area = document.getElementById('notificationArea');
+  const status = document.getElementById('notificationStatus');
+  const retry = document.getElementById('retryNotification');
+  area.style.display = 'block';
+  retry.style.display = 'none';
+  notificationSending = true;
+  status.textContent = '運営への通知メッセージを送信中…';
+  try {
+    const context = liff.getContext();
+    // グループなど別の宛先へ通知しない。
+    if (!liff.isInClient() || !context || context.type !== 'utou') {
+      status.textContent = '回答は保存済みです。運営への通知のため、Arkadia船橋店の公式LINEのトークへ戻り「' + notificationText + '」と送信してください。';
+      return;
+    }
+    await liff.sendMessages([{ type: 'text', text: notificationText }]);
+    notificationSent = true;
+    status.textContent = '運営への通知メッセージを送信しました。';
+  } catch (error) {
+    status.textContent = '回答は保存済みですが、通知メッセージを送れませんでした。下のボタンで再送するか、Arkadia船橋店の公式LINEへ「' + notificationText + '」と送信してください。';
+    retry.style.display = 'block';
+  } finally {
+    notificationSending = false;
+  }
+}
+
+document.getElementById('retryNotification').addEventListener('click', sendSurveyNotification);
+
 confirmSubmit.addEventListener(
   'click',
   async () => {
@@ -1418,6 +1457,7 @@ confirmSubmit.addEventListener(
           'success'
         );
 
+        await sendSurveyNotification();
         return;
       }
 
