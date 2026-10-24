@@ -1182,8 +1182,6 @@ sourceInput.addEventListener(
           );
         }
 
-        canSendLineMessage = await prepareLineMessage();
-
         button.disabled = false;
 
         button.textContent =
@@ -1316,37 +1314,32 @@ confirmItems.forEach(([label, value]) => {
   }
 );
 
-// 体験会予約フォームと同じ、起動元の1対1トークへのテキスト送信。
+// LINE公式SDK自身の送信処理で権限を判定する。
 const notificationText = '初回来場アンケート';
 let notificationSent = false;
 let notificationSending = false;
-let canSendLineMessage = false;
-
-async function prepareLineMessage() {
-  try {
-    const context = liff.getContext();
-    if (!liff.isInClient() || !context || context.type !== 'utou') return false;
-    if (!liff.permission || typeof liff.permission.query !== 'function') return false;
-    let permission = await liff.permission.query('chat_message.write');
-    if (permission.state !== 'granted' && typeof liff.permission.request === 'function') {
-      try {
-        await liff.permission.request('chat_message.write');
-        permission = await liff.permission.query('chat_message.write');
-      } catch (_) {}
-    }
-    return permission.state === 'granted';
-  } catch (_) {
-    return false;
-  }
-}
+let lineMessageDelivery = {status: 'not_attempted', build: '20261024.3'};
 
 async function sendSurveyNotification() {
   if (notificationSent || notificationSending) return;
   notificationSending = true;
   let timer;
   try {
-    canSendLineMessage = await prepareLineMessage();
-    if (!canSendLineMessage) return;
+    const context = liff.getContext();
+    const inClient = liff.isInClient();
+    lineMessageDelivery = {
+      status: 'attempting',
+      build: '20261024.3',
+      inClient,
+      contextType: context && context.type || 'unknown',
+      sdkVersion: typeof liff.getVersion === 'function' ? liff.getVersion() : ''
+    };
+    // グループへの誤送信を防ぐ。トーク送信の可否はSDK自身が判定する。
+    if (!inClient || ['group', 'room', 'square_chat'].includes(lineMessageDelivery.contextType)) {
+      lineMessageDelivery.status = 'unsupported_context';
+      return;
+    }
+    // permission.queryの結果で先に打ち切らず、公式SDKのsendMessagesを実行。
     await Promise.race([
       liff.sendMessages([{ type: 'text', text: notificationText }]),
       new Promise((_, reject) => {
@@ -1354,8 +1347,11 @@ async function sendSurveyNotification() {
       })
     ]);
     notificationSent = true;
-  } catch (_) {
-    console.warn('初回来場アンケートのLINEテキスト送信を確認できませんでした。');
+    lineMessageDelivery.status = 'sent';
+  } catch (error) {
+    lineMessageDelivery.status = 'failed';
+    lineMessageDelivery.errorCode = String(error && error.code || (error && error.message === 'LINE_SEND_TIMEOUT' ? 'timeout' : 'unknown')).slice(0, 40);
+    console.warn('Survey LINE text delivery:', lineMessageDelivery);
   } finally {
     clearTimeout(timer);
     notificationSending = false;
@@ -1435,7 +1431,10 @@ confirmSubmit.addEventListener(
                   idToken,
 
                 accessToken:
-                  accessToken
+                  accessToken,
+
+                lineMessageDelivery:
+                  lineMessageDelivery
               })
           }
         );
