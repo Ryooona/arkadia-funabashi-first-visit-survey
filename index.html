@@ -595,7 +595,7 @@
 
   <p class="notice">
     ※送信後は回答内容を変更できません。<br>
-    回答後、運営への通知として、お客様のLINEから「初回来場アンケート回答」を送信します。
+    回答送信の際、最初にお客様のLINEから「初回来場アンケート」を送信します。
   </p>
 
   <button
@@ -1320,7 +1320,7 @@ confirmItems.forEach(([label, value]) => {
 );
 
 // 回答保存と通知送信を分け、通知の再試行で回答を二重登録しない。
-const notificationText = '初回来場アンケート回答';
+const notificationText = '初回来場アンケート';
 let notificationSent = false;
 let notificationSending = false;
 
@@ -1337,14 +1337,14 @@ async function sendSurveyNotification() {
     const context = liff.getContext();
     // グループなど別の宛先へ通知しない。
     if (!liff.isInClient() || !context || context.type !== 'utou') {
-      status.textContent = '回答は保存済みです。運営への通知のため、Arkadia船橋店の公式LINEのトークへ戻り「' + notificationText + '」と送信してください。';
+      status.textContent = '運営への通知のため、Arkadia船橋店の公式LINEのトークへ戻り「' + notificationText + '」と送信してください。';
       return;
     }
     await liff.sendMessages([{ type: 'text', text: notificationText }]);
     notificationSent = true;
     status.textContent = '運営への通知メッセージを送信しました。';
   } catch (error) {
-    status.textContent = '回答は保存済みですが、通知メッセージを送れませんでした。下のボタンで再送するか、Arkadia船橋店の公式LINEへ「' + notificationText + '」と送信してください。';
+    status.textContent = '店舗への通知メッセージを送れませんでした。下のボタンで再送するか、Arkadia船橋店の公式LINEへ「' + notificationText + '」と送信してください。';
     retry.style.display = 'block';
   } finally {
     notificationSending = false;
@@ -1377,6 +1377,9 @@ confirmSubmit.addEventListener(
     hideMessage();
 
     try {
+
+      // 店舗へのテキストを、APIが送る回答内容・お礼・クーポンより先に送信。
+      await sendSurveyNotification();
 
       const response =
         await fetch(
@@ -1457,7 +1460,6 @@ confirmSubmit.addEventListener(
           'success'
         );
 
-        await sendSurveyNotification();
         return;
       }
 
