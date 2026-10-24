@@ -495,6 +495,10 @@
           Google Map
         </option>
 
+        <option value="AI検索・チャット（ChatGPT・Gemini・Claudeなど）">
+          AI検索・チャット（ChatGPT・Gemini・Claudeなど）
+        </option>
+
         <option value="X（旧Twitter）">
           X（旧Twitter）
         </option>
@@ -921,6 +925,16 @@ sourceInput.addEventListener(
         showSourceText(
           'どのような検索キーワードで当店を見つけましたか？',
           '例：船橋 ポーカー'
+        );
+
+        break;
+
+
+      case 'AI検索・チャット（ChatGPT・Gemini・Claudeなど）':
+
+        showSourceText(
+          '使ったAIと、どのような質問で当店が出てきたかを教えてください。',
+          '例：ChatGPTで「船橋でポーカーができるお店」と質問した'
         );
 
         break;
