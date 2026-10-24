@@ -594,8 +594,7 @@
   <div id="confirmContent"></div>
 
   <p class="notice">
-    ※送信後は回答内容を変更できません。<br>
-    回答送信の際、最初にお客様のLINEから「初回来場アンケート」を送信します。
+    ※送信後は回答内容を変更できません。
   </p>
 
   <button
@@ -615,10 +614,6 @@
 </div>
     
     <div id="message"></div>
-    <div id="notificationArea" style="display: none;" role="status">
-      <p id="notificationStatus"></p>
-      <button id="retryNotification" type="button" style="display: none;">通知メッセージを再送する</button>
-    </div>
 
   </main>
 
@@ -1187,6 +1182,8 @@ sourceInput.addEventListener(
           );
         }
 
+        canSendLineMessage = await prepareLineMessage();
+
         button.disabled = false;
 
         button.textContent =
@@ -1319,39 +1316,51 @@ confirmItems.forEach(([label, value]) => {
   }
 );
 
-// 回答保存と通知送信を分け、通知の再試行で回答を二重登録しない。
+// 体験会予約フォームと同じ、起動元の1対1トークへのテキスト送信。
 const notificationText = '初回来場アンケート';
 let notificationSent = false;
 let notificationSending = false;
+let canSendLineMessage = false;
 
-async function sendSurveyNotification() {
-  if (notificationSent || notificationSending) return;
-  const area = document.getElementById('notificationArea');
-  const status = document.getElementById('notificationStatus');
-  const retry = document.getElementById('retryNotification');
-  area.style.display = 'block';
-  retry.style.display = 'none';
-  notificationSending = true;
-  status.textContent = '運営への通知メッセージを送信中…';
+async function prepareLineMessage() {
   try {
     const context = liff.getContext();
-    // グループなど別の宛先へ通知しない。
-    if (!liff.isInClient() || !context || context.type !== 'utou') {
-      status.textContent = '運営への通知のため、Arkadia船橋店の公式LINEのトークへ戻り「' + notificationText + '」と送信してください。';
-      return;
+    if (!liff.isInClient() || !context || context.type !== 'utou') return false;
+    if (!liff.permission || typeof liff.permission.query !== 'function') return false;
+    let permission = await liff.permission.query('chat_message.write');
+    if (permission.state !== 'granted' && typeof liff.permission.request === 'function') {
+      try {
+        await liff.permission.request('chat_message.write');
+        permission = await liff.permission.query('chat_message.write');
+      } catch (_) {}
     }
-    await liff.sendMessages([{ type: 'text', text: notificationText }]);
-    notificationSent = true;
-    status.textContent = '運営への通知メッセージを送信しました。';
-  } catch (error) {
-    status.textContent = '店舗への通知メッセージを送れませんでした。下のボタンで再送するか、Arkadia船橋店の公式LINEへ「' + notificationText + '」と送信してください。';
-    retry.style.display = 'block';
-  } finally {
-    notificationSending = false;
+    return permission.state === 'granted';
+  } catch (_) {
+    return false;
   }
 }
 
-document.getElementById('retryNotification').addEventListener('click', sendSurveyNotification);
+async function sendSurveyNotification() {
+  if (notificationSent || notificationSending) return;
+  notificationSending = true;
+  let timer;
+  try {
+    canSendLineMessage = await prepareLineMessage();
+    if (!canSendLineMessage) return;
+    await Promise.race([
+      liff.sendMessages([{ type: 'text', text: notificationText }]),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('LINE_SEND_TIMEOUT')), 15000);
+      })
+    ]);
+    notificationSent = true;
+  } catch (_) {
+    console.warn('初回来場アンケートのLINEテキスト送信を確認できませんでした。');
+  } finally {
+    clearTimeout(timer);
+    notificationSending = false;
+  }
+}
 
 confirmSubmit.addEventListener(
   'click',
@@ -1378,7 +1387,7 @@ confirmSubmit.addEventListener(
 
     try {
 
-      // 店舗へのテキストを、APIが送る回答内容・お礼・クーポンより先に送信。
+      // 体験会と同じ順序で、お客様のテキストを店舗の返信より先に送る。
       await sendSurveyNotification();
 
       const response =
