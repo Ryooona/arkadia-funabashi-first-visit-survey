@@ -1184,9 +1184,10 @@ sourceInput.addEventListener(
           );
         }
 
+        // 体験会予約と同じLIFFブラウザ初期化にし、
+        // 起動元トークの文脈を優先する。
         await liff.init({
-          liffId: LIFF_ID,
-          withLoginOnExternalBrowser: true
+          liffId: LIFF_ID
         });
 
         if (!liff.isLoggedIn()) {
@@ -1545,5 +1546,4 @@ confirmSubmit.addEventListener(
 
   </script>
 
-</body>
-</html>
+</body></html>
