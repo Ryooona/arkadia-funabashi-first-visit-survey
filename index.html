@@ -691,6 +691,7 @@ for (
 ) {
   const option =
     document.createElement('option');
+
   option.value = year;
   option.textContent = year + '年';
 
@@ -1204,18 +1205,37 @@ sourceInput.addEventListener(
         lineUserId = profile.userId || '';
         lineDisplayName = profile.displayName || '';
 
-        // chat_message.write はLIFFの公開APIで同意を取得する。
-        // queryがpromptでも、送信前にSDKのsendMessagesを実行する。
+        // 体験会予約と同じく、起動元の1対1トークで送信権限を確認する。
+        // 権限が未許可なら、送信直前にchat_message.writeの同意を求める。
         try {
-          if (liff.permission && typeof liff.permission.requestAll === 'function') {
-            await liff.permission.requestAll();
-          }
-          if (liff.permission && typeof liff.permission.query === 'function') {
-            const permission = await liff.permission.query('chat_message.write');
+          const context = liff.getContext();
+          const inOfficialLineChat =
+            liff.isInClient() &&
+            context &&
+            context.type === 'utou';
+          if (
+            inOfficialLineChat &&
+            liff.permission &&
+            typeof liff.permission.query === 'function'
+          ) {
+            let permission =
+              await liff.permission.query('chat_message.write');
             linePermissionState = permission.state || 'unknown';
+            if (
+              permission.state !== 'granted' &&
+              typeof liff.permission.request === 'function'
+            ) {
+              try {
+                await liff.permission.request('chat_message.write');
+                permission =
+                  await liff.permission.query('chat_message.write');
+                linePermissionState = permission.state || 'unknown';
+              } catch (_) {}
+            }
             canSendLineMessage = permission.state === 'granted';
           }
         } catch (_) {
+          canSendLineMessage = false;
           linePermissionState = 'unknown';
         }
 
@@ -1370,29 +1390,62 @@ confirmItems.forEach(([label, value]) => {
   }
 );
 
-// LINE公式SDK自身の送信処理で権限を判定する。
+// LINE公式SDK自身で、起動元の1対1トークへ固定テキストを送る。
 const notificationText = '初回来場アンケート';
 let notificationSent = false;
 let notificationSending = false;
-let lineMessageDelivery = {status: 'not_attempted', build: '20261024.3'};
+let lineMessageDelivery = {status: 'not_attempted', build: '20261025.1'};
+
+async function prepareLineMessage() {
+  try {
+    const context = liff.getContext();
+    if (!liff.isInClient() || !context || context.type !== 'utou') {
+      return false;
+    }
+    if (
+      !liff.permission ||
+      typeof liff.permission.query !== 'function'
+    ) {
+      return false;
+    }
+    let permission =
+      await liff.permission.query('chat_message.write');
+    linePermissionState = permission.state || 'unknown';
+    if (
+      permission.state !== 'granted' &&
+      typeof liff.permission.request === 'function'
+    ) {
+      try {
+        await liff.permission.request('chat_message.write');
+        permission =
+          await liff.permission.query('chat_message.write');
+        linePermissionState = permission.state || 'unknown';
+      } catch (_) {}
+    }
+    return permission.state === 'granted';
+  } catch (_) {
+    return false;
+  }
+}
 
 async function sendSurveyNotification() {
   if (notificationSent || notificationSending) return;
   notificationSending = true;
   let timer;
   try {
+    canSendLineMessage = await prepareLineMessage();
     const context = liff.getContext();
     const inClient = liff.isInClient();
     lineMessageDelivery = {
       status: 'attempting',
-      build: '20261024.3',
+      build: '20261025.1',
       inClient,
       contextType: context && context.type || 'unknown',
       sdkVersion: typeof liff.getVersion === 'function' ? liff.getVersion() : '',
       permissionState: typeof linePermissionState === 'string' ? linePermissionState : 'unknown'
     };
-    // 体験会予約と同じく、公式LINEの1対1トークからだけ送信する。
-    if (!inClient || ['group', 'room', 'square_chat'].includes(lineMessageDelivery.contextType)) {
+    // 体験会予約と同じく、公式LINEの1対1トークかつ許可済みの場合だけ送信する。
+    if (!canSendLineMessage || !inClient || lineMessageDelivery.contextType !== 'utou') {
       lineMessageDelivery.status = 'unsupported_context';
       return;
     }
