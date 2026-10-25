@@ -691,7 +691,6 @@ for (
 ) {
   const option =
     document.createElement('option');
-
   option.value = year;
   option.textContent = year + '年';
 
@@ -1154,6 +1153,11 @@ sourceInput.addEventListener(
 
     let idToken = '';
     let accessToken = '';
+    let lineUserId = '';
+    let lineDisplayName = '';
+    // 体験会予約と同じく、LIFF起動時に送信権限を確認する。
+    let canSendLineMessage = false;
+    let linePermissionState = 'unknown';
 
 
     function showMessage(
@@ -1193,6 +1197,26 @@ sourceInput.addEventListener(
         if (!liff.isLoggedIn()) {
           liff.login();
           return;
+        }
+
+        // 体験会予約と同じくプロフィールを取得する。
+        const profile = await liff.getProfile();
+        lineUserId = profile.userId || '';
+        lineDisplayName = profile.displayName || '';
+
+        // chat_message.write はLIFFの公開APIで同意を取得する。
+        // queryがpromptでも、送信前にSDKのsendMessagesを実行する。
+        try {
+          if (liff.permission && typeof liff.permission.requestAll === 'function') {
+            await liff.permission.requestAll();
+          }
+          if (liff.permission && typeof liff.permission.query === 'function') {
+            const permission = await liff.permission.query('chat_message.write');
+            linePermissionState = permission.state || 'unknown';
+            canSendLineMessage = permission.state === 'granted';
+          }
+        } catch (_) {
+          linePermissionState = 'unknown';
         }
 
         idToken =
@@ -1364,14 +1388,14 @@ async function sendSurveyNotification() {
       build: '20261024.3',
       inClient,
       contextType: context && context.type || 'unknown',
-      sdkVersion: typeof liff.getVersion === 'function' ? liff.getVersion() : ''
+      sdkVersion: typeof liff.getVersion === 'function' ? liff.getVersion() : '',
+      permissionState: typeof linePermissionState === 'string' ? linePermissionState : 'unknown'
     };
-    // グループへの誤送信を防ぐ。トーク送信の可否はSDK自身が判定する。
+    // 体験会予約と同じく、公式LINEの1対1トークからだけ送信する。
     if (!inClient || ['group', 'room', 'square_chat'].includes(lineMessageDelivery.contextType)) {
       lineMessageDelivery.status = 'unsupported_context';
       return;
     }
-    // permission.queryの結果で先に打ち切らず、公式SDKのsendMessagesを実行。
     await Promise.race([
       liff.sendMessages([{ type: 'text', text: notificationText }]),
       new Promise((_, reject) => {
@@ -1546,4 +1570,5 @@ confirmSubmit.addEventListener(
 
   </script>
 
-</body></html>
+</body>
+</html>
